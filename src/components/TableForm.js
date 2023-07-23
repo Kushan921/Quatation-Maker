@@ -1,0 +1,162 @@
+import React, { useContext } from "react";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import DeleteModal from "./DeleteModal";
+import { State } from "../context/stateContext";
+
+export default function TableForm() {
+  const {
+    items,
+    setItems,
+    description,
+    setDescription,
+    quantity,
+    setQuantity,
+    price,
+    setPrice,
+    amount,
+    list,
+    total,
+    advance,
+    setAdvance,
+    shipping,
+    setShipping,
+    isEditing,
+    showModal,
+    setShowModal,
+    handleSubmit,
+    editRow,
+  } = useContext(State);
+
+  const subtotal = list.reduce((acc, item) => acc + item.amount, 0);
+  const grandTotal = Number(subtotal) + Number(shipping) - advance;
+
+  return (
+    <>
+      <ToastContainer position="top-right" theme="colored" />
+
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col md:mt-16">
+          <label htmlFor="items">Item</label>
+          <select
+            className="selection border-blue-200 border-2 p-2 "          
+            name="items"
+            id="items"
+            value={items}
+            onChange={(e) => setItems(e.target.value)}
+          >
+            <option value="">Select an item</option>
+            <option value="Mattress">Mattress</option>
+            <option value="Beds">Beds</option>
+            <option value="Gel Pillows">Gel Pillows</option>
+            <option value="Protectors">Protectors</option>
+          </select>
+        </div>
+
+
+        <div className="flex flex-col md:mt-2">
+          <label htmlFor="description">Description</label>
+          <input
+            type="text"
+            name="description"
+            id="description"
+            placeholder="Item description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </div>
+
+        <div className="md:grid grid-cols-3 gap-10">
+          <div className="flex flex-col">
+            <label htmlFor="quantity">Quantity</label>
+            <input
+              type="text"
+              name="quantity"
+              id="quantity"
+              placeholder="Quantity"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="price">Price</label>
+            <input
+              type="text"
+              name="price"
+              id="price"
+              placeholder="Price"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label htmlFor="amount">Amount</label>
+            <p>{amount}</p>
+          </div>
+        </div>
+        <button
+          type="submit"
+          className="bg-blue-500 mb-5 text-white font-bold py-2 px-8 rounded hover:bg-blue-600 hover:text-white transition-all duration-150 hover:ring-4 hover:ring-blue-400"
+        >
+          {isEditing ? "Finish Editing" : "Add Table Item"}
+        </button>
+      </form>
+
+      {/* Table items */}
+
+      <table width="100%" className="mb-10 overflow-auto">
+        <thead>
+          <tr className="bg-gray-100 p-1">
+            <td className="font-bold">Items</td>
+            <td className="font-bold">Description</td>
+            <td className="font-bold">Quantity</td>
+            <td className="font-bold">UnitPrice</td>
+            <td className="font-bold">Total</td>
+          </tr>
+        </thead>
+        {list.map(({ id,items, description, quantity, price, amount }) => (
+          <React.Fragment key={id}>
+            <tbody>
+              <tr className="h-10">
+                <td>{items}</td>
+                <td>{description}</td>
+                <td>{quantity}</td>
+                <td>{price}</td>
+                <td className="amount">{amount}</td>
+                <td>
+                  <button onClick={() => editRow(id)}>
+                    <AiOutlineEdit className="text-green-500 font-bold text-xl" />
+                  </button>
+                </td>
+                <td>
+                  <button onClick={() => setShowModal(true)}>
+                    <AiOutlineDelete className="text-red-500 font-bold text-xl" />
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+            {showModal && <DeleteModal id={id} />}
+          </React.Fragment>
+        ))}
+      </table>
+
+      <div className="mr-24">
+      <h2 className="flex items-end justify-end text-gray-800 text-md font-bold mt-10">
+          Total &nbsp;&nbsp; {subtotal.toLocaleString()}
+        </h2>
+        <h2 className="flex items-end justify-end text-gray-800 text-md font-bold">
+          Advance &nbsp;&nbsp; {advance}
+        </h2>
+        <h2 className="flex items-end justify-end text-gray-800 text-md font-bold">
+          Shipping &nbsp;&nbsp; {shipping}
+        </h2>
+        <h2 className="flex items-end justify-end text-red-600 text-md font-bold">
+          Grand Total &nbsp;&nbsp; {grandTotal.toLocaleString()}
+        </h2>
+      </div>
+    </>
+  );
+}
